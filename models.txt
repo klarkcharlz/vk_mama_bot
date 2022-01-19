@@ -1,0 +1,181 @@
+# coding: utf-8
+# sqlacodegen postgresql+psycopg2://mama:MaMaRooT@localhost:5432/mama_timer
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, Date, DateTime, Float, ForeignKey, Integer, SmallInteger, String, Text, UniqueConstraint, text
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+metadata = Base.metadata
+
+
+class AuthGroup(Base):
+    __tablename__ = 'auth_group'
+
+    id = Column(Integer, primary_key=True, server_default=text("nextval('auth_group_id_seq'::regclass)"))
+    name = Column(String(150), nullable=False, unique=True)
+
+
+class AuthUser(Base):
+    __tablename__ = 'auth_user'
+
+    id = Column(Integer, primary_key=True, server_default=text("nextval('auth_user_id_seq'::regclass)"))
+    password = Column(String(128), nullable=False)
+    last_login = Column(DateTime(True))
+    is_superuser = Column(Boolean, nullable=False)
+    username = Column(String(150), nullable=False, unique=True)
+    first_name = Column(String(150), nullable=False)
+    last_name = Column(String(150), nullable=False)
+    email = Column(String(254), nullable=False)
+    is_staff = Column(Boolean, nullable=False)
+    is_active = Column(Boolean, nullable=False)
+    date_joined = Column(DateTime(True), nullable=False)
+
+
+class ContentAboutchildren(Base):
+    __tablename__ = 'content_aboutchildren'
+    __table_args__ = (
+        CheckConstraint('week >= 0'),
+    )
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('content_aboutchildren_id_seq'::regclass)"))
+    week = Column(Integer, nullable=False)
+    src = Column(String(100), nullable=False)
+    text = Column(Text, nullable=False)
+    weigh = Column(Float(53), nullable=False)
+    length = Column(Float(53), nullable=False)
+
+
+class ContentContent(Base):
+    __tablename__ = 'content_content'
+    __table_args__ = (
+        CheckConstraint('day >= 0'),
+        CheckConstraint('week >= 0')
+    )
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('content_content_id_seq'::regclass)"))
+    week = Column(Integer, nullable=False)
+    src = Column(String(100), nullable=False)
+    title = Column(String(255), nullable=False)
+    text = Column(Text, nullable=False)
+    parent_flag = Column(String(16), nullable=False)
+    day = Column(Integer, nullable=False)
+
+
+class DjangoContentType(Base):
+    __tablename__ = 'django_content_type'
+    __table_args__ = (
+        UniqueConstraint('app_label', 'model'),
+    )
+
+    id = Column(Integer, primary_key=True, server_default=text("nextval('django_content_type_id_seq'::regclass)"))
+    app_label = Column(String(100), nullable=False)
+    model = Column(String(100), nullable=False)
+
+
+class DjangoMigration(Base):
+    __tablename__ = 'django_migrations'
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('django_migrations_id_seq'::regclass)"))
+    app = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
+    applied = Column(DateTime(True), nullable=False)
+
+
+class DjangoSession(Base):
+    __tablename__ = 'django_session'
+
+    session_key = Column(String(40), primary_key=True, index=True)
+    session_data = Column(Text, nullable=False)
+    expire_date = Column(DateTime(True), nullable=False, index=True)
+
+
+class UsersUser(Base):
+    __tablename__ = 'users_user'
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('users_user_id_seq'::regclass)"))
+    user_vk_id = Column(BigInteger, nullable=False, unique=True)
+    first_name = Column(String(64))
+    last_name = Column(String(64))
+    country = Column(String(64))
+    city = Column(String(64))
+    sex = Column(String(8))
+    birth_day = Column(Date)
+    created_at = Column(DateTime(True), nullable=False)
+    updated_at = Column(DateTime(True), nullable=False)
+    last_months = Column(Date)
+    due_date = Column(Date)
+
+
+class AuthPermission(Base):
+    __tablename__ = 'auth_permission'
+    __table_args__ = (
+        UniqueConstraint('content_type_id', 'codename'),
+    )
+
+    id = Column(Integer, primary_key=True, server_default=text("nextval('auth_permission_id_seq'::regclass)"))
+    name = Column(String(255), nullable=False)
+    content_type_id = Column(ForeignKey('django_content_type.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+    codename = Column(String(100), nullable=False)
+
+    content_type = relationship('DjangoContentType')
+
+
+class AuthUserGroup(Base):
+    __tablename__ = 'auth_user_groups'
+    __table_args__ = (
+        UniqueConstraint('user_id', 'group_id'),
+    )
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('auth_user_groups_id_seq'::regclass)"))
+    user_id = Column(ForeignKey('auth_user.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+    group_id = Column(ForeignKey('auth_group.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+
+    group = relationship('AuthGroup')
+    user = relationship('AuthUser')
+
+
+class DjangoAdminLog(Base):
+    __tablename__ = 'django_admin_log'
+    __table_args__ = (
+        CheckConstraint('action_flag >= 0'),
+    )
+
+    id = Column(Integer, primary_key=True, server_default=text("nextval('django_admin_log_id_seq'::regclass)"))
+    action_time = Column(DateTime(True), nullable=False)
+    object_id = Column(Text)
+    object_repr = Column(String(200), nullable=False)
+    action_flag = Column(SmallInteger, nullable=False)
+    change_message = Column(Text, nullable=False)
+    content_type_id = Column(ForeignKey('django_content_type.id', deferrable=True, initially='DEFERRED'), index=True)
+    user_id = Column(ForeignKey('auth_user.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+
+    content_type = relationship('DjangoContentType')
+    user = relationship('AuthUser')
+
+
+class AuthGroupPermission(Base):
+    __tablename__ = 'auth_group_permissions'
+    __table_args__ = (
+        UniqueConstraint('group_id', 'permission_id'),
+    )
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('auth_group_permissions_id_seq'::regclass)"))
+    group_id = Column(ForeignKey('auth_group.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+    permission_id = Column(ForeignKey('auth_permission.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+
+    group = relationship('AuthGroup')
+    permission = relationship('AuthPermission')
+
+
+class AuthUserUserPermission(Base):
+    __tablename__ = 'auth_user_user_permissions'
+    __table_args__ = (
+        UniqueConstraint('user_id', 'permission_id'),
+    )
+
+    id = Column(BigInteger, primary_key=True, server_default=text("nextval('auth_user_user_permissions_id_seq'::regclass)"))
+    user_id = Column(ForeignKey('auth_user.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+    permission_id = Column(ForeignKey('auth_permission.id', deferrable=True, initially='DEFERRED'), nullable=False, index=True)
+
+    permission = relationship('AuthPermission')
+    user = relationship('AuthUser')
