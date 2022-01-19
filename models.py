@@ -55,4 +55,4 @@ class UsersUser(Base):
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     last_months = Column(Date)
     due_date = Column(Date)
-    subscribe = Column(Boolean)
+    subscribe = Column(Boolean, default=False)

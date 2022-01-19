@@ -41,6 +41,10 @@ settings_keyboard_settings = {'one_time': False,
                               'inline': False}
 settings_keyboard = VkKeyboard(**settings_keyboard_settings)
 
+settings_keyboard.add_callback_button(label='На главную',
+                                      color=VkKeyboardColor.SECONDARY,
+                                      payload={"type": "go_to_main"})
+settings_keyboard.add_line()
 settings_keyboard.add_callback_button(label='Подписаться',
                                       color=VkKeyboardColor.POSITIVE,
                                       payload={"type": "subscribe"})
@@ -52,10 +56,7 @@ settings_keyboard.add_line()
 settings_keyboard.add_callback_button(label='Отписаться',
                                       color=VkKeyboardColor.SECONDARY,
                                       payload={"type": "unsubscribe"})
-settings_keyboard.add_line()
-settings_keyboard.add_callback_button(label='На главную',
-                                      color=VkKeyboardColor.SECONDARY,
-                                      payload={"type": "go_to_main"})
+
 
 # inline клавиатура для установки даты
 born_keyboard_settings = {'one_time': False,

@@ -4,7 +4,7 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import redis
 
-from keyboard import main_keyboard, start_button, settings_keyboard
+from keyboard import main_keyboard, start_button, settings_keyboard, born_keyboard
 from settings import TOKEN, API_VERSION, GROUP_ID, VK_CALLBACKS
 from controller import ACTION
 from function import (custom_event_response,
@@ -35,7 +35,7 @@ if __name__ == "__main__":
                           f'{mes_text}')
                     write_msg(vk, id_,
                               f'Приветствую {get_user_name_from_vk_id(id_)}',
-                              settings_keyboard)
+                              born_keyboard)
                 elif re.match(r"\d{2}.\d{2}.\d{4}", mes_text):
                     print("DATA SET")  # check redis
                     mode = r.get(str(id_))

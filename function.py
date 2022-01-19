@@ -10,6 +10,7 @@ from vk_api import VkUpload
 from bd import session
 from models import UsersUser, ContentContent, ContentAboutchildren
 from settings import MEDIA_PATH
+from keyboard import main_keyboard, start_button, settings_keyboard, born_keyboard
 
 
 def get_user(vk, id_, check=True):
@@ -25,7 +26,8 @@ def get_users_due_date(vk, id_, check=True):
     if model and not model.due_date and check:
         write_msg(vk, id_, "Дата родов не установлена!")
         return None
-    return model.due_date
+    elif model and model.due_date:
+        return model.due_date
 
 
 def custom_event_response(vk, event):
@@ -104,7 +106,8 @@ def insert_date(date, id_, vk):
         session.commit()
         write_msg(vk, id_, f"Вы изменили дату родов.\nВаша дата родов: {date.strftime('%d.%m.%Y')}."
                            f"\nВы беремены {weeks} {declination(weeks, ['неделю', 'недели', 'недель'])}.\n"
-                           f"До родов {days} {declination(days, ['день', 'дня', 'дней'])}.")
+                           f"До родов {days} {declination(days, ['день', 'дня', 'дней'])}.",
+                  keyboard_=settings_keyboard)
 
 
 def set_sub(id_, value):
@@ -169,6 +172,7 @@ def about_children(vk, id_):
                   f"Весит {int(children_content.weigh)}г.\n" \
                   f"И длиной {children_content.length}см."
         return message, f"{MEDIA_PATH}/{children_content.src}"
+    return None, None
 
 
 def declination(num, word):
