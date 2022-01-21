@@ -57,7 +57,6 @@ settings_keyboard.add_callback_button(label='Отписаться',
                                       color=VkKeyboardColor.SECONDARY,
                                       payload={"type": "unsubscribe"})
 
-
 # inline клавиатура для установки даты
 born_keyboard_settings = {'one_time': False,
                           'inline': True}
@@ -68,3 +67,4 @@ born_keyboard.add_callback_button(label='Да, знаю!',
 born_keyboard.add_callback_button(label='Нет, но хочу знать!',
                                   color=VkKeyboardColor.PRIMARY,
                                   payload={"type": "blood"})
+

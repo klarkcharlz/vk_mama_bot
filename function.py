@@ -46,7 +46,8 @@ def vk_callback_event_response(vk, event):
 
 
 def get_user_name_from_vk_id(user_id):
-    request = requests.get("https://vk.com/id" + str(user_id))
+    headers = {"Accept-Language": "ru"}
+    request = requests.get("https://vk.com/id" + str(user_id), headers=headers)
     bs = bs4.BeautifulSoup(request.text, "html.parser")
     user_name = clean_all_tag_from_str(bs.findAll("title")[0])
     return " ".join(user_name.split()[:2])
@@ -180,3 +181,8 @@ def declination(num, word):
     # declination(, ['день', 'дня', 'дней'])
     cases = [2, 0, 1, 1, 1, 2]
     return word[(4 < num % 100 < 20) if 2 else cases[(num % 10 < 5) if num % 10 else 5]]
+
+
+
+if __name__ == "__main__":
+    print(get_user_name_from_vk_id(232551334))
