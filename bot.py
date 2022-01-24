@@ -7,7 +7,7 @@ import requests
 
 from keyboard import main_keyboard, start_button, settings_keyboard, born_keyboard
 from settings import TOKEN, API_VERSION, GROUP_ID, VK_CALLBACKS
-from controller import ACTION
+from controller import ACTION, MES_COM
 from function import (custom_event_response,
                       vk_callback_event_response,
                       get_user_name_from_vk_id,
@@ -33,11 +33,11 @@ if __name__ == "__main__":
                         print(event.obj.message.keys())
                         mes_text = event.obj.message["text"]
                         id_ = event.obj.message["from_id"]
-                        if mes_text.lower() == "начать":
+                        if mes_text.lower().strip() == "начать":
                             print(f'New message for me by {get_user_name_from_vk_id(id_)}:\n'
                                   f'{mes_text}')
                             write_msg(vk, id_,
-                                      f'Приветствую {get_user_name_from_vk_id(id_)}',
+                                      f'Приветствую {get_user_name_from_vk_id(id_)}. Ты знаешь дату родов ?',
                                       born_keyboard)
                         elif re.match(r"\d{2}.\d{2}.\d{4}", mes_text):
                             print("DATA SET")  # check redis
@@ -51,6 +51,8 @@ if __name__ == "__main__":
                                 calculate_day_born(mes_text, id_, vk)
                             else:
                                 print("User not in set mode!")
+                        elif mes_text.strip().lower().rstrip("!🤰🤷🤓🕑 ") in MES_COM.keys():
+                            MES_COM[mes_text.strip().lower().rstrip("!🤰🤷🤓🕑 ")](vk, id_)
                         else:
                             write_msg(vk, event.obj.message["from_id"],
                                       "Я вас не понимаю, нажмите кнопку для показа клавиатуры.",

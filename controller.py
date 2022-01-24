@@ -24,3 +24,18 @@ ACTION = {
     "born": born,
     "blood": blood
 }
+
+
+MES_COM = {
+    'узнать чо ща с малышом': about_child,
+    'узнать что ща с твоим организмом': about_mom,
+    'интересный факт': interested_fact,
+    'рекомендация на сегодня': recom_today,
+    'настройки': settings_keys,
+    'на главную': go_to_main,
+    'подписаться': subscribe,
+    'изменить дату родов': set_born_day,
+    'отписаться': unsubscribe,
+    'да, знаю': born,
+    'нет, но хочу знать': blood
+}

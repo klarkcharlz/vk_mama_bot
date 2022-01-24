@@ -179,9 +179,26 @@ def about_children(vk, id_):
 def declination(num, word):
     # declination(, ['неделю', 'недели', 'недель'])
     # declination(, ['день', 'дня', 'дней'])
-    cases = [2, 0, 1, 1, 1, 2]
-    return word[(4 < num % 100 < 20) if 2 else cases[(num % 10 < 5) if num % 10 else 5]]
-
+    if len(str(num)) == 1:
+        last_num = num
+    else:
+        last_num = int(num % 100)
+        if last_num == 0 or last_num in [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
+            return word[2]
+        else:
+            last_num = int(last_num % 10)
+            if last_num == 1:
+                return word[0]
+            elif last_num in [2, 3, 4]:
+                return word[1]
+            else:
+                return word[2]
+    if last_num == 1:
+        return word[0]
+    elif last_num in [2, 3, 4]:
+        return word[1]
+    else:
+        return word[2]
 
 
 if __name__ == "__main__":
