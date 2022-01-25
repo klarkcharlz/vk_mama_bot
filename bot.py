@@ -3,7 +3,7 @@ import re
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import redis
-import requests
+from requests.exceptions import ReadTimeout, ConnectionError
 
 from keyboard import main_keyboard, start_button, settings_keyboard, born_keyboard
 from settings import TOKEN, API_VERSION, GROUP_ID, VK_CALLBACKS
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                     elif event.object.payload['type'] in VK_CALLBACKS:
                         # print(event.object.payload)
                         vk_callback_event_response(vk, event)
-        except requests.exceptions.ReadTimeout:
+        except (ReadTimeout, ConnectionError):
             print("Переподключение к серверам ВК.")
             vk_session = vk_api.VkApi(token=TOKEN, api_version=API_VERSION)
             vk = vk_session.get_api()
