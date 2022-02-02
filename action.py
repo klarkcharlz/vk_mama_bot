@@ -1,13 +1,9 @@
-import redis
-
 from keyboard import settings_keyboard, main_keyboard, born_keyboard
-from function import get_user_name_from_vk_id, get_users_due_date, get_main_content, calculate_week_and_day, get_user, \
-    set_sub, write_msg, about_children
-from settings import LIFE_SET_KEY, MEDIA_PATH
-from bd import session
-from models import UsersUser, ContentContent, ContentAboutchildren
-
-r = redis.Redis(host='localhost', port=6379, db=0)
+from function import get_user_name_from_vk_id, get_users_due_date, calculate_week_and_day, get_user, \
+    set_sub, write_msg, about_children, about_mom_children, next_post
+from settings import LIFE_SET_KEY
+from bd import r, next_collection
+from mongo_function import find_document
 
 
 def settings_keys(vk, id_):
@@ -15,19 +11,11 @@ def settings_keys(vk, id_):
 
 
 def about_child(vk, id_):
-    due_date = get_users_due_date(vk, id_)
-    if due_date:
-        days, weeks = calculate_week_and_day(due_date)
-        mess, img_path = get_main_content(weeks, 'children')
-        write_msg(vk, id_, mess, img_path=img_path)
+    about_mom_children(vk, id_, "children")
 
 
 def about_mom(vk, id_):
-    due_date = get_users_due_date(vk, id_)
-    if due_date:
-        days, weeks = calculate_week_and_day(due_date)
-        mess, img_path = get_main_content(weeks, 'mama')
-        write_msg(vk, id_, mess, img_path=img_path)
+    about_mom_children(vk, id_, "mama")
 
 
 def interested_fact(vk, id_):
@@ -82,3 +70,11 @@ def unsubscribe(vk, id_):
         set_sub(id_, False)
         write_msg(vk, id_, "Вы отписались от рассылки.")
     print(f"{id_} unsubscribe")
+
+
+def next_post_mama(vk, id_):
+    next_post(vk, id_, "mama")
+
+
+def next_post_children(vk, id_):
+    next_post(vk, id_, "children")

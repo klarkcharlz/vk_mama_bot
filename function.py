@@ -2,15 +2,17 @@ import random
 import json
 from datetime import datetime, timedelta
 from math import ceil
+from pprint import pprint
 
 import requests
 import bs4
 from vk_api import VkUpload
 
-from bd import session
+from bd import session, next_collection
 from models import UsersUser, ContentContent, ContentAboutchildren
 from settings import MEDIA_PATH
-from keyboard import main_keyboard, start_button, settings_keyboard, born_keyboard
+from keyboard import settings_keyboard, next_mama_keyboard, next_child_keyboard
+from mongo_function import insert_document, find_document, update_document, delete_document
 
 
 def get_user(vk, id_, check=True):
@@ -157,9 +159,14 @@ def calculate_week_and_day(date):
 
 
 def get_main_content(week, flag, day=None):
-    model = session.query(ContentContent).filter(ContentContent.week == week,
-                                                 ContentContent.parent_flag == flag).first()
-    return f"{model.title}\n{model.text.replace('<br>', '')}", f"{MEDIA_PATH}/{model.src}"
+    models = session.query(ContentContent).filter(ContentContent.week == week,
+                                                  ContentContent.parent_flag == flag)
+    data = [{"text": f"{model.title}\n{model.text.replace('<br>', '')}",
+             "src": f"{MEDIA_PATH}/{model.src}"}
+            for model in models]
+    # print(f"Posts: {len(data)}")
+    # pprint(data)
+    return data
 
 
 def about_children(vk, id_):
@@ -201,5 +208,47 @@ def declination(num, word):
         return word[2]
 
 
+def about_mom_children(vk, id_, flag):
+    due_date = get_users_due_date(vk, id_)
+    if due_date:
+        days, weeks = calculate_week_and_day(due_date)
+        data = get_main_content(weeks, flag)
+        if len(data) == 1:
+            mess, img_path = data[0]['text'], data[0]['src']
+            write_msg(vk, id_, mess, img_path=img_path)
+        elif len(data) >= 1:
+            mongo_data = {
+                "_id": id_,
+                "flag": flag,
+                "total_post": len(data),
+                "cur_post": 1,
+                "posts": [{"text": post["text"], "src": post["src"]} for post in data]
+            }
+            insert_document(next_collection, mongo_data)
+            mess, img_path = data[0]['text'], data[0]['src']
+            keyboard = next_mama_keyboard if flag == "mama" else next_child_keyboard  # выбор нужной кнопки
+            write_msg(vk, id_, mess, img_path=img_path, keyboard_=keyboard)
+
+
+def next_post(vk, id_, flag):
+    data = find_document(next_collection, {"_id": id_, "flag": flag})
+    if not data:
+        # если пользователь израсходовал посты и продолжает жать далее
+        pass
+    else:
+        data['cur_post'] += data['cur_post']
+        if data['cur_post'] < data['total_post']:
+            update_document(next_collection, {"_id": id_, "flag": flag}, {'cur_post': data['cur_post']})  # обновляем данные
+            mess, img_path = data['posts'][data['cur_post'] - 1]['text'], data['posts'][data['cur_post'] - 1]['src']
+            keyboard = next_mama_keyboard if flag == "mama" else next_child_keyboard  # выбор нужной кнопки
+            write_msg(vk, id_, mess, img_path=img_path, keyboard_=keyboard)
+        elif data['cur_post'] == data['total_post']:
+            # выводим последний пост и удаляем данные
+            delete_document(next_collection, {"_id": id_, "flag": flag}, multiple=True)
+            mess, img_path = data['posts'][data['cur_post'] - 1]['text'], data['posts'][data['cur_post'] - 1]['src']
+            write_msg(vk, id_, mess, img_path=img_path)
+
+
 if __name__ == "__main__":
-    print(get_user_name_from_vk_id(232551334))
+    # print(get_user_name_from_vk_id(232551334))
+    next_collection.delete_many({})

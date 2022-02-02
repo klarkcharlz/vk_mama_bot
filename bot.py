@@ -1,12 +1,12 @@
 import re
+from time import sleep
 
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-import redis
 from requests.exceptions import ReadTimeout, ConnectionError
 
-from keyboard import main_keyboard, start_button, settings_keyboard, born_keyboard
-from settings import TOKEN, API_VERSION, GROUP_ID, VK_CALLBACKS
+from keyboard import start_button, born_keyboard
+from settings import TOKEN, API_VERSION, GROUP_ID, VK_CALLBACKS, IGNORE_CHAR
 from controller import ACTION, MES_COM
 from function import (custom_event_response,
                       vk_callback_event_response,
@@ -14,15 +14,15 @@ from function import (custom_event_response,
                       write_msg,
                       validate_day_born,
                       calculate_day_born)
+from bd import r, next_collection
 
 vk_session = vk_api.VkApi(token=TOKEN, api_version=API_VERSION)
 vk = vk_session.get_api()
 longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID)
 
-r = redis.Redis(host='localhost', port=6379, db=0)
-
 
 if __name__ == "__main__":
+    next_collection.delete_many({})  # очистка монго при старте бота, нужна ли ?
     print("Server started")
     while True:
         try:
@@ -51,11 +51,11 @@ if __name__ == "__main__":
                                 calculate_day_born(mes_text, id_, vk)
                             else:
                                 print("User not in set mode!")
-                        elif mes_text.strip().lower().rstrip("!🤰🤷🤓🕑 ") in MES_COM.keys():
-                            MES_COM[mes_text.strip().lower().rstrip("!🤰🤷🤓🕑 ")](vk, id_)
+                        elif mes_text.strip().lower().rstrip(IGNORE_CHAR) in MES_COM.keys():
+                            MES_COM[mes_text.strip().lower().rstrip(IGNORE_CHAR)](vk, id_)
                         else:
                             write_msg(vk, event.obj.message["from_id"],
-                                      "Я вас не понимаю, нажмите кнопку для показа клавиатуры.",
+                                      "Я вас не понимаю, нажмите кнопку.",
                                       start_button)
                 elif event.type == VkBotEventType.MESSAGE_EVENT:
                     # print(event.object.payload)
@@ -67,7 +67,14 @@ if __name__ == "__main__":
                         # print(event.object.payload)
                         vk_callback_event_response(vk, event)
         except (ReadTimeout, ConnectionError):
-            print("Переподключение к серверам ВК.")
-            vk_session = vk_api.VkApi(token=TOKEN, api_version=API_VERSION)
-            vk = vk_session.get_api()
-            longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID)
+            while True:
+                try:
+                    print("Переподключение к серверам ВК.")
+                    vk_session = vk_api.VkApi(token=TOKEN, api_version=API_VERSION)
+                    vk = vk_session.get_api()
+                    longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID)
+                except Exception as err:
+                    print("Переводключение неудачно")
+                    sleep(10)
+                else:
+                    break

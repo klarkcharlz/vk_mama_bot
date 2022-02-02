@@ -68,3 +68,18 @@ born_keyboard.add_callback_button(label='Нет, но хочу знать!',
                                   color=VkKeyboardColor.PRIMARY,
                                   payload={"type": "blood"})
 
+# inline кнопка далее мама
+next_mama_keyboard_settings = {'one_time': False,
+                               'inline': True}
+next_mama_keyboard = VkKeyboard(**next_mama_keyboard_settings)
+next_mama_keyboard.add_callback_button(label='Далее',
+                                       color=VkKeyboardColor.POSITIVE,
+                                       payload={"type": "mama_next_post"})
+
+# inline кнопка далее ребенок
+next_child_keyboard_settings = {'one_time': False,
+                                'inline': True}
+next_child_keyboard = VkKeyboard(**next_child_keyboard_settings)
+next_child_keyboard.add_callback_button(label='Далее',
+                                        color=VkKeyboardColor.POSITIVE,
+                                        payload={"type": "children_next_post"})

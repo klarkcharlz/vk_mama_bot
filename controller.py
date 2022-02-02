@@ -8,7 +8,9 @@ from action import (settings_keys,
                     blood,
                     recom_today,
                     subscribe,
-                    unsubscribe
+                    unsubscribe,
+                    next_post_mama,
+                    next_post_children
                     )
 
 ACTION = {
@@ -22,9 +24,10 @@ ACTION = {
     "set_born_day": set_born_day,
     "unsubscribe": unsubscribe,
     "born": born,
-    "blood": blood
+    "blood": blood,
+    "mama_next_post": next_post_mama,
+    "children_next_post": next_post_children
 }
-
 
 MES_COM = {
     'узнать чо ща с малышом': about_child,
