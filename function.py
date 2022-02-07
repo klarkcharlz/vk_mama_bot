@@ -12,7 +12,7 @@ from bd import session, next_collection
 from models import UsersUser, ContentContent, ContentAboutchildren
 from settings import MEDIA_PATH
 from keyboard import settings_keyboard, next_mama_keyboard, next_child_keyboard
-from mongo_function import insert_document, find_document, update_document, delete_document
+from mongo_function import find_document, delete_document, mongo_update_without_duplicate
 
 
 def get_user(vk, id_, check=True):
@@ -21,6 +21,11 @@ def get_user(vk, id_, check=True):
         write_msg(vk, id_, "Вас нет в базе данных!")
         return None
     return model
+
+
+def get_ids():
+    models = session.query(UsersUser).filter(UsersUser.subscribe == True)
+    return [model.user_vk_id for model in models]
 
 
 def get_users_due_date(vk, id_, check=True):
@@ -224,7 +229,7 @@ def about_mom_children(vk, id_, flag):
                 "cur_post": 1,
                 "posts": [{"text": post["text"], "src": post["src"]} for post in data]
             }
-            insert_document(next_collection, mongo_data)
+            mongo_update_without_duplicate(next_collection, {"_id": id_, "flag": flag}, mongo_data)
             mess, img_path = data[0]['text'], data[0]['src']
             keyboard = next_mama_keyboard if flag == "mama" else next_child_keyboard  # выбор нужной кнопки
             write_msg(vk, id_, mess, img_path=img_path, keyboard_=keyboard)
@@ -238,7 +243,7 @@ def next_post(vk, id_, flag):
     else:
         data['cur_post'] += data['cur_post']
         if data['cur_post'] < data['total_post']:
-            update_document(next_collection, {"_id": id_, "flag": flag}, {'cur_post': data['cur_post']})  # обновляем данные
+            mongo_update_without_duplicate(next_collection, {"_id": id_, "flag": flag}, {'cur_post': data['cur_post']})  # обновляем данные
             mess, img_path = data['posts'][data['cur_post'] - 1]['text'], data['posts'][data['cur_post'] - 1]['src']
             keyboard = next_mama_keyboard if flag == "mama" else next_child_keyboard  # выбор нужной кнопки
             write_msg(vk, id_, mess, img_path=img_path, keyboard_=keyboard)

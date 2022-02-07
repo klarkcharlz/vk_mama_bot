@@ -40,5 +40,7 @@ MES_COM = {
     'изменить дату родов': set_born_day,
     'отписаться': unsubscribe,
     'да, знаю': born,
-    'нет, но хочу знать': blood
+    'нет, но хочу знать': blood,
+    "далее о маме": next_post_mama,
+    "далее о ребенке": next_post_children
 }

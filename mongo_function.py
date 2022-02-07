@@ -3,6 +3,11 @@ def insert_document(collection, data_):
     return collection.insert_one(data_).inserted_id
 
 
+def mongo_update_without_duplicate(collection, filter_, data):
+    """UPDATE OR INSERT"""
+    collection.update_one(filter_, {'$set': data}, upsert=True)
+
+
 def find_document(collection, elements, multiple=False):
     """SELECT"""
     if multiple:

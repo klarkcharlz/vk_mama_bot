@@ -1,5 +1,5 @@
 .env
 try.py
 __pycache__
-problem.txt
+../../../problem.txt
 dmb_bot.py

@@ -72,7 +72,7 @@ born_keyboard.add_callback_button(label='Нет, но хочу знать!',
 next_mama_keyboard_settings = {'one_time': False,
                                'inline': True}
 next_mama_keyboard = VkKeyboard(**next_mama_keyboard_settings)
-next_mama_keyboard.add_callback_button(label='Далее',
+next_mama_keyboard.add_callback_button(label='Далее о маме',
                                        color=VkKeyboardColor.POSITIVE,
                                        payload={"type": "mama_next_post"})
 
@@ -80,6 +80,6 @@ next_mama_keyboard.add_callback_button(label='Далее',
 next_child_keyboard_settings = {'one_time': False,
                                 'inline': True}
 next_child_keyboard = VkKeyboard(**next_child_keyboard_settings)
-next_child_keyboard.add_callback_button(label='Далее',
+next_child_keyboard.add_callback_button(label='Далее о ребенке',
                                         color=VkKeyboardColor.POSITIVE,
                                         payload={"type": "children_next_post"})
