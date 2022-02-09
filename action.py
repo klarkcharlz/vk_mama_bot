@@ -20,14 +20,14 @@ def about_mom(vk, id_):
 def interested_fact(vk, id_):
     due_date = get_users_due_date(vk, id_)
     if due_date:
-        days, weeks = calculate_week_and_day(due_date)
+        days, weeks = calculate_week_and_day(vk, id_, due_date)
         write_msg(vk, id_, "Интересный факт")
 
 
 def recom_today(vk, id_):
     due_date = get_users_due_date(vk, id_)
     if due_date:
-        days, weeks = calculate_week_and_day(due_date)
+        days, weeks = calculate_week_and_day(vk, id_, due_date)
         write_msg(vk, id_, "Рекомендации на сегодня")
 
 

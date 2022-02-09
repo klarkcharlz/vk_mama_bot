@@ -96,7 +96,7 @@ def write_msg(vk, id_, message, keyboard_=None, img_path=None):
 
 def insert_date(date, id_, vk):
     try:
-        days, weeks = calculate_week_and_day(date)
+        days, weeks = calculate_week_and_day(vk, id_, date)
     except ValueError:
         write_msg(vk, id_, f"Невалидная дата родов {date.strftime('%d.%m.%Y')}.")
     else:
@@ -150,8 +150,11 @@ def validate_day_born(date, id_, vk):
         insert_date(born_date, id_, vk)  # запись
 
 
-def calculate_week_and_day(date):
+def calculate_week_and_day(vk, id_, date):
     today_date = datetime.now().date()
+    if date < today_date:
+        write_msg(vk, id_, "Чего Вы хотите? Вы уже родили!")
+        raise ValueError("Роды уже совершены!")
     # дней до родов
     days_to_born = (date - today_date).days
     # print(f"Дней до родов {days_to_born}")
@@ -177,7 +180,7 @@ def get_main_content(week, flag, day=None):
 def about_children(vk, id_):
     due_date = get_users_due_date(vk, id_, False)
     if due_date:
-        days_to_born, weeks = calculate_week_and_day(due_date)
+        days_to_born, weeks = calculate_week_and_day(vk, id_, due_date)
         children_content = session.query(ContentAboutchildren).filter(ContentAboutchildren.week == weeks).first()
         message = f"Вы беремены {weeks} {declination(weeks, ['неделю', 'недели', 'недель'])}." \
                   f"\nДо родов {days_to_born} {declination(days_to_born, ['день', 'дня', 'дней'])}.\nВаш малыш размером " \
@@ -216,23 +219,27 @@ def declination(num, word):
 def about_mom_children(vk, id_, flag):
     due_date = get_users_due_date(vk, id_)
     if due_date:
-        days, weeks = calculate_week_and_day(due_date)
-        data = get_main_content(weeks, flag)
-        if len(data) == 1:
-            mess, img_path = data[0]['text'], data[0]['src']
-            write_msg(vk, id_, mess, img_path=img_path)
-        elif len(data) >= 1:
-            mongo_data = {
-                "_id": id_,
-                "flag": flag,
-                "total_post": len(data),
-                "cur_post": 1,
-                "posts": [{"text": post["text"], "src": post["src"]} for post in data]
-            }
-            mongo_update_without_duplicate(next_collection, {"_id": id_, "flag": flag}, mongo_data)
-            mess, img_path = data[0]['text'], data[0]['src']
-            keyboard = next_mama_keyboard if flag == "mama" else next_child_keyboard  # выбор нужной кнопки
-            write_msg(vk, id_, mess, img_path=img_path, keyboard_=keyboard)
+        try:
+            days, weeks = calculate_week_and_day(vk, id_, due_date)
+        except ValueError as err:
+            print(err)
+        else:
+            data = get_main_content(weeks, flag)
+            if len(data) == 1:
+                mess, img_path = data[0]['text'], data[0]['src']
+                write_msg(vk, id_, mess, img_path=img_path)
+            elif len(data) >= 1:
+                mongo_data = {
+                    "_id": id_,
+                    "flag": flag,
+                    "total_post": len(data),
+                    "cur_post": 1,
+                    "posts": [{"text": post["text"], "src": post["src"]} for post in data]
+                }
+                mongo_update_without_duplicate(next_collection, {"_id": id_, "flag": flag}, mongo_data)
+                mess, img_path = data[0]['text'], data[0]['src']
+                keyboard = next_mama_keyboard if flag == "mama" else next_child_keyboard  # выбор нужной кнопки
+                write_msg(vk, id_, mess, img_path=img_path, keyboard_=keyboard)
 
 
 def next_post(vk, id_, flag):
