@@ -6,11 +6,11 @@ main_keyboard_settings = {'one_time': False,
                           'inline': False}
 main_keyboard = VkKeyboard(**main_keyboard_settings)
 
-main_keyboard.add_callback_button(label='Узнать чо ща с малышом🤰',
+main_keyboard.add_callback_button(label='Узнать что сейчас с малышом🤰',
                                   color=VkKeyboardColor.POSITIVE,
                                   payload={"type": "about_child"})
 main_keyboard.add_line()
-main_keyboard.add_callback_button(label='Узнать что ща с твоим организмом🤷',
+main_keyboard.add_callback_button(label='Узнать что сейчас с твоим организмом🤷',
                                   color=VkKeyboardColor.POSITIVE,
                                   payload={"type": "about_mom"})
 main_keyboard.add_line()
@@ -25,7 +25,7 @@ main_keyboard.add_line()
 main_keyboard.add_callback_button(label='Настройки',
                                   color=VkKeyboardColor.PRIMARY,
                                   payload={"type": "settings"})
-main_keyboard.add_callback_button(label='Чат с бабами',
+main_keyboard.add_callback_button(label='Чат с мамочками',
                                   color=VkKeyboardColor.SECONDARY,
                                   payload={"type": "open_link", "link": CHAT_URL})
 

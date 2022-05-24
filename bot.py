@@ -22,7 +22,7 @@ longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID)
 
 
 if __name__ == "__main__":
-    next_collection.delete_many({})  # очистка монго при старте бота, нужна ли ?
+    next_collection.delete_many({})  # ToDo очистка монго при старте бота, нужна ли ?
     print("Server started")
     while True:
         try:
@@ -74,7 +74,7 @@ if __name__ == "__main__":
                     vk = vk_session.get_api()
                     longpoll = VkBotLongPoll(vk_session, group_id=GROUP_ID)
                 except Exception as err:
-                    print("Переводключение неудачно")
+                    print("Переподключение неудачно")
                     sleep(10)
                 else:
                     break
